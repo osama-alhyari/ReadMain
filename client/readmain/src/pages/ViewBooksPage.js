@@ -1,9 +1,15 @@
 import axios from "axios";
 import BookList from "../components/BookList";
 import Modal from "../components/Modal";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+const headers = {
+  token: localStorage.getItem("token"),
+  id: localStorage.getItem("id"),
+  admin: localStorage.getItem("admin"),
+};
 
 function ViewBooksPage() {
   const [books, setBooks] = useState([]);
@@ -22,32 +28,25 @@ function ViewBooksPage() {
 
   const [renderPage, setRenderPage] = useState(false);
 
-  const headers = {
-    token: localStorage.getItem("token"),
-    id: localStorage.getItem("id"),
-    admin: localStorage.getItem("admin"),
-  };
-
-  const fetchBooks = useCallback(async () => {
-    const response = await axios.get("http://localhost:8000/api/books", {
-      headers,
-    });
-    if (response.data.books) {
-      setBooks(response.data.books);
-      setRenderPage(true);
-    }
-    if (response.data.invalidToken) {
-      setRenderPage(false);
-      setShowAuthModal({
-        show: true,
-        message: "Session Timed Out, Please Login Again",
-      });
-    }
-  }, []);
-
   useEffect(() => {
+    const fetchBooks = async () => {
+      const response = await axios.get("http://localhost:8000/api/books", {
+        headers,
+      });
+      if (response.data.books) {
+        setBooks(response.data.books);
+        setRenderPage(true);
+      }
+      if (response.data.invalidToken) {
+        setRenderPage(false);
+        setShowAuthModal({
+          show: true,
+          message: "Session Timed Out, Please Login Again",
+        });
+      }
+    };
     fetchBooks();
-  }, [fetchBooks]);
+  }, []);
 
   const deleteBook = async () => {
     await axios.delete(
@@ -79,7 +78,7 @@ function ViewBooksPage() {
       bookObject,
     });
     const response = await axios.get("http://localhost:8000/api/books", {
-      headers
+      headers,
     });
     setBooks(response.data.books);
   };
