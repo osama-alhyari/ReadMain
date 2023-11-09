@@ -14,31 +14,27 @@ function BookShow({ book, onDelete, onEditSave, showEdit, setShowEdit }) {
     setShowEdit(book.id);
   };
 
-  let content = (
-    <div className="relative top-3">
-      <span className="font-bold">Book Name : </span> {book.name}
-      <br></br>
-      <span className="font-bold">Language : </span> {book.language}
-      <br></br>
-      <span className="font-bold">Genre : </span> {book.genre}
-      <br></br>
-      <span className="font-bold">Number of Pages :</span> {book.numberOfPages}
-      <br></br>
-    </div>
-  );
-
-  if (+showEdit === book.id) {
-    content = (
-      <BookEdit
-        book={book}
-        onEditButtonClick={handleEditClick}
-        onEditSave={onEditSave} 
-      />
-    );
-  }
   return (
     <div className="border-4 border-gray-600 rounded-lg bg-gray-700 px-2 text-white">
-      {content}
+      {+showEdit === book.id ? (
+        <BookEdit
+          book={book}
+          onEditButtonClick={handleEditClick}
+          onEditSave={onEditSave}
+        />
+      ) : (
+        <div className="relative top-3">
+          <span className="font-bold">Book Name : </span> {book.name}
+          <br></br>
+          <span className="font-bold">Language : </span> {book.language}
+          <br></br>
+          <span className="font-bold">Genre : </span> {book.genre}
+          <br></br>
+          <span className="font-bold">Number of Pages :</span>{" "}
+          {book.numberOfPages}
+          <br></br>
+        </div>
+      )}
 
       <button
         className="px-4 float-right relative -left-1 bottom-4 bg-gray-800 hover:bg-gray-900 rounded-full"
