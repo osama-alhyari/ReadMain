@@ -2,7 +2,6 @@ import Book from "../database/models/Book.js";
 import Booktag from "../database/models/Booktag.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import Tag from "../database/models/Tag.js";
-import User from "../database/models/User.js";
 
 export const addBook = catchAsync(async (req, res, next) => {
   const { name, genre, language, numberOfPages, tagsString } = req.body;
@@ -34,21 +33,21 @@ export const addBook = catchAsync(async (req, res, next) => {
 });
 
 export const getAllBooks = catchAsync(async (req, res, next) => {
-  const books = await Book.findAll();
+  const books = await Book.findAll({ where: { isAvailable: 1 } });
   res.status(200).json({ results: books.length, books });
 });
 
 export const updateBook = catchAsync(async (req, res, next) => {
   //On front-end button submit, the values should all be updated
-  
+
   const { id } = req.params;
   console.log(req.params);
-  const toBeUpdated = await Book.findOne ({where :{ id : +id}})
-  toBeUpdated.name = req.body.bookObject.name
-  toBeUpdated.genre = req.body.bookObject.genre
-  toBeUpdated.language = req.body.bookObject.language
-  toBeUpdated.numberOfPages = req.body.bookObject.numberOfPages
-  await toBeUpdated.save ()
+  const toBeUpdated = await Book.findOne({ where: { id: +id } });
+  toBeUpdated.name = req.body.bookObject.name;
+  toBeUpdated.genre = req.body.bookObject.genre;
+  toBeUpdated.language = req.body.bookObject.language;
+  toBeUpdated.numberOfPages = req.body.bookObject.numberOfPages;
+  await toBeUpdated.save();
 
   // await Book.update(
   //   {

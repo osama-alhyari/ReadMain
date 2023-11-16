@@ -6,7 +6,6 @@ function BookList({ books, onEditSave, onDelete }) {
   const [showEdit, setShowEdit] = useState("");
 
   let renderedBooks = books
-    .filter((book) => +book.isAvailable === 1)
     .map((book) => {
       return (
         <BookShow
