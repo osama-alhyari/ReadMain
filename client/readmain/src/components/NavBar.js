@@ -4,27 +4,31 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import HomeSignedIn from "./HomeSignedIn";
 
+const headers = {
+  token: localStorage.getItem("token"),
+  id: localStorage.getItem("id"),
+  admin: localStorage.getItem("admin"),
+};
+
 function NavBar() {
   const [tokenValidity, setTokenValidity] = useState(false);
   const [showHomeContent, setShowHomeContent] = useState(false); // this state is set to true after useEffect concludes. to show correct component only. without it the conditional rendering would show the invalid token component until the token is validated from the API
-  const headers = {
-    token: localStorage.getItem("token"),
-    id: localStorage.getItem("id"),
-    admin: localStorage.getItem("admin"),
-  };
 
-  useEffect(async () => {
-    if (headers.token && headers.id && headers.admin) {
-      const response = await axios.get("http://localhost:8000/api/token", {
-        headers,
-      });
-      if (response.data.validToken) {
-        setTokenValidity(true);
-      } else {
-        setTokenValidity(false);
+  useEffect(() => {
+    const validateToken = async () => {
+      if (headers.token && headers.id && headers.admin) {
+        const response = await axios.get("http://localhost:8000/api/token", {
+          headers,
+        });
+        if (response.data.validToken) {
+          setTokenValidity(true);
+        } else {
+          setTokenValidity(false);
+        }
       }
-    }
-    setShowHomeContent(true);
+      setShowHomeContent(true);
+    };
+    validateToken();
   }, []);
 
   const handleLogout = () => {

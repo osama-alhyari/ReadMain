@@ -3,6 +3,12 @@ import BookCreate from "../components/BookCreate";
 import axios from "axios";
 import Modal from "../components/Modal";
 
+const headers = {
+  token: localStorage.getItem("token"),
+  id: localStorage.getItem("id"),
+  admin: localStorage.getItem("admin"),
+};
+
 function AddBooksPage() {
   const [showAuthModal, setShowAuthModal] = useState({
     show: false,
@@ -11,27 +17,20 @@ function AddBooksPage() {
 
   const [renderPage, setRenderPage] = useState(false);
 
-  const headers = {
-    token: localStorage.getItem("token"),
-    id: localStorage.getItem("id"),
-    admin: localStorage.getItem("admin"),
-  };
-
-  const validateToken = async () => {
-    const response = await axios.get("http://localhost:8000/api/token", {
-      headers,
-    });
-    if (response.data.validToken) {
-      setRenderPage(true);
-    } else {
-      setShowAuthModal({
-        show: true,
-        message: "Session Timed Out, Please Login Again",
-      });
-    }
-  };
-
   useEffect(() => {
+    const validateToken = async () => {
+      const response = await axios.get("http://localhost:8000/api/token", {
+        headers,
+      });
+      if (response.data.validToken) {
+        setRenderPage(true);
+      } else {
+        setShowAuthModal({
+          show: true,
+          message: "Session Timed Out, Please Login Again",
+        });
+      }
+    };
     validateToken();
   }, []);
 

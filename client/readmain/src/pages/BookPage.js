@@ -1,8 +1,15 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
 import { ToastContainer, toast } from "react-toastify";
 import BookEdit from "../components/BookEdit";
+import { Link } from "react-router-dom";
+
+const headers = {
+  token: localStorage.getItem("token"),
+  id: localStorage.getItem("id"),
+  admin: localStorage.getItem("admin"),
+};
 
 function BookPage() {
   const [book, setBook] = useState({});
@@ -18,61 +25,61 @@ function BookPage() {
   const path = window.location.pathname.split("/");
   const id = +path[2];
 
-  const headers = {
-    token: localStorage.getItem("token"),
-    id: localStorage.getItem("id"),
-    admin: localStorage.getItem("admin"),
-  };
-
-  const getBook = useCallback(async () => {
-    const response = await axios.get(`http://localhost:8000/api/books/${id}`, {
-      headers,
-    });
-    if (response.data.book) {
-      setBook(response.data.book);
-      setRenderPage(true);
-    }
-    if (response.data.invalidToken) {
-      setRenderPage(false);
-      setShowAuthModal({
-        show: true,
-        message: "Session Timed Out, Please Login Again",
-      });
-    }
-  }, []);
-
-  const getTags = useCallback(async () => {
-    const response = await axios.get(
-      `http://localhost:8000/api/booktags/tags/${id}`,
-      {
-        headers,
+  useEffect(() => {
+    const getTags = async () => {
+      const response = await axios.get(
+        `http://localhost:8000/api/booktags/tags/${id}`,
+        {
+          headers,
+        }
+      );
+      if (response.data.tagList) {
+        setTags(response.data.tagList);
+        setRenderPage(true);
       }
-    );
-    if (response.data.tagList) {
-      setTags(response.data.tagList);
-      setRenderPage(true);
-    }
-    if (response.data.invalidToken) {
-      setRenderPage(false);
-      setShowAuthModal({
-        show: true,
-        message: "Session Timed Out, Please Login Again",
-      });
-    }
-  }, []);
-
-  useEffect(() => {
+      if (response.data.invalidToken) {
+        setRenderPage(false);
+        setShowAuthModal({
+          show: true,
+          message: "Session Timed Out, Please Login Again",
+        });
+      }
+    };
     getTags();
-  }, [getTags]);
+  }, [id]);
 
   useEffect(() => {
+    const getBook = async () => {
+      const response = await axios.get(
+        `http://localhost:8000/api/books/${id}`,
+        {
+          headers,
+        }
+      );
+      if (response.data.book) {
+        setBook(response.data.book);
+        setRenderPage(true);
+      }
+      if (response.data.invalidToken) {
+        setRenderPage(false);
+        setShowAuthModal({
+          show: true,
+          message: "Session Timed Out, Please Login Again",
+        });
+      }
+    };
     getBook();
-  }, [getBook]);
+  }, [id]);
 
   if (tags.length === 0) setTags(["No Tags"]);
 
   const mappedTags = tags.map((tag) => {
-    return <h1 className="text-3xl m-2 my-6">{tag}</h1>;
+    // return <h1 className="text-3xl m-2 my-6">{tag}</h1>;
+    return (
+      <Link className="" to={`/tag/${tag.id}`}>
+        {tag.name}
+      </Link>
+    );
   });
 
   const deleteBook = async () => {
@@ -90,6 +97,7 @@ function BookPage() {
       progress: undefined,
       theme: "light",
     });
+    window.location = "http://localhost:3000/viewbooks";
   };
 
   const editBook = async (id, bookObject) => {
