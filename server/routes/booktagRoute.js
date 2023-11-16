@@ -1,5 +1,6 @@
 import express from "express";
 import * as booktagController from "../controllers/booktagController.js";
+import Book from "../database/models/Book.js";
 
 const router = express.Router();
 
