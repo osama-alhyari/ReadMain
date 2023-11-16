@@ -26,7 +26,7 @@ function ViewBooksPage() {
     message: "",
   });
 
-  const [renderPage, setRenderPage] = useState(false); // to prevent showing page when token is invalid 
+  const [renderPage, setRenderPage] = useState(false); // to prevent showing page when token is invalid
 
   useEffect(() => {
     const fetchBooks = async () => {

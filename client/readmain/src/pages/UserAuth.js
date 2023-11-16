@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { redirect } from "react-router-dom";
 
 function UserAuth() {
   const [loginOrSignup, setLoginOrSignup] = useState("container top-24");
@@ -208,7 +207,7 @@ function UserAuth() {
               });
             }}
           />
-          <a className="aauth" href="#">
+          <a className="aauth" href="/">
             Forgot your password?
           </a>
           <button onClick={handleLogin} className="buttonauth">

@@ -8,8 +8,6 @@ function BookEdit({ book, onEditSave, onEditButtonClick }) {
     numberOfPages: book.numberOfPages,
   });
 
-
-
   const [errors, setErrors] = useState({});
 
   const handleSubmit = (event) => {
@@ -26,10 +24,7 @@ function BookEdit({ book, onEditSave, onEditButtonClick }) {
 
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0) {
-      onEditSave(
-        book.id,
-        bookState
-      );
+      onEditSave(book.id, bookState);
       onEditButtonClick();
     }
   };

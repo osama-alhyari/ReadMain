@@ -6,6 +6,7 @@ import ViewBooksPage from "./pages/ViewBooksPage";
 import AddBooksPage from "./pages/AddBooksPage";
 import BookPage from "./pages/BookPage";
 import NavBar from "./components/NavBar";
+import TagPage from "./pages/TagPage";
 
 const Router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const Router = createBrowserRouter([
       {
         path: "/book/:bookid",
         element: <BookPage />,
+      },
+      {
+        path: "/tag/:tagid",
+        element: <TagPage />,
       },
     ],
   },

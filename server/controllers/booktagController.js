@@ -16,21 +16,21 @@ export const showTagsOfBook = catchAsync(async (req, res, next) => {
     tag = await Tag.findOne({
       where: { id: tagPairs[tagID].dataValues.tagID },
     });
-    tagsInBook.push(tag.name);
+    tagsInBook.push(tag);
   }
   res.status(201).json({ tagList: tagsInBook });
 });
 
 export const showBooksInTags = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  const { tagID } = req.params;
   const booksInTag = [];
   const tagPairs = await Booktag.findAll({
     where: {
-      tagID: { id },
+      tagID,
     },
   });
   let book;
-  for (const bookID in tagPairs) {
+  for (let bookID in tagPairs) {
     book = await Book.findOne({
       where: { id: tagPairs[bookID].dataValues.bookID },
     });
