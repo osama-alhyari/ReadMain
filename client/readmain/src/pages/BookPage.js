@@ -1,243 +1,141 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Modal from "../components/Modal";
-import { ToastContainer, toast } from "react-toastify";
-import BookEdit from "../components/BookEdit";
 import { Link } from "react-router-dom";
+import Rating from "@mui/material/Rating";
+import Typography from "@mui/material/Typography";
 
 const headers = {
   token: localStorage.getItem("token"),
   id: localStorage.getItem("id"),
-  admin: localStorage.getItem("admin"),
 };
 
-function BookPage() {
+export default function BookPage() {
   const [book, setBook] = useState({});
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const [tags, setTags] = useState([]);
   const [renderPage, setRenderPage] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState({
-    show: false,
-    message: "",
-  });
-
+  const [value, setValue] = useState(0);
+  const [rated, setRated] = useState(false);
+  const [rating, setRating] = useState(0);
   const path = window.location.pathname.split("/");
   const id = +path[2];
 
   useEffect(() => {
-    const getTags = async () => {
-      const response = await axios.get(
-        `http://localhost:8000/api/booktags/tags/${id}`,
-        {
-          headers,
-        }
-      );
-      if (response.data.tagList) {
-        setTags(response.data.tagList);
-        setRenderPage(true);
-      }
-      if (response.data.invalidToken) {
-        setRenderPage(false);
-        setShowAuthModal({
-          show: true,
-          message: "Session Timed Out, Please Login Again",
-        });
-      }
-    };
-    getTags();
-  }, [id]);
+    const fetchData = async () => {
+      try {
+        const [tagsResponse, bookResponse, rateResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API}/booktags/tags/${id}`, {
+            headers,
+          }),
+          axios.get(`${process.env.REACT_APP_API}/books/${id}`, { headers }),
+          axios.get(`${process.env.REACT_APP_API}/ratebook`, {
+            headers: { userID: headers.id, bookID: id },
+          }),
+        ]);
 
-  useEffect(() => {
-    const getBook = async () => {
-      const response = await axios.get(
-        `http://localhost:8000/api/books/${id}`,
-        {
-          headers,
+        if (tagsResponse.data.tagList && bookResponse.data.book) {
+          setTags(tagsResponse.data.tagList);
+          setBook(bookResponse.data.book);
+          setValue(bookResponse.data.book.rating);
+          setRenderPage(true);
         }
-      );
-      if (response.data.book) {
-        setBook(response.data.book);
-        setRenderPage(true);
-      }
-      if (response.data.invalidToken) {
-        setRenderPage(false);
-        setShowAuthModal({
-          show: true,
-          message: "Session Timed Out, Please Login Again",
-        });
+
+        if (rateResponse.data.rated) {
+          setRated(true);
+          setRating(rateResponse.data.rated);
+        } else {
+          setRated(false);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle error, show message to the user, etc.
       }
     };
-    getBook();
+
+    fetchData();
   }, [id]);
 
   if (tags.length === 0) setTags(["No Tags"]);
 
-  const mappedTags = tags.map((tag) => {
-    // return <h1 className="text-3xl m-2 my-6">{tag}</h1>;
-    return (
-      <Link className="" to={`/tag/${tag.id}`}>
-        {tag.name}
-      </Link>
-    );
-  });
-
-  const deleteBook = async () => {
-    await axios.delete(`http://localhost:8000/api/books/${id}`, {
-      headers,
-    });
-    setShowDeleteModal(false);
-    toast.warn(`The book ${book.name} has been deleted`, {
-      position: "bottom-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-    window.location = "http://localhost:3000/viewbooks";
-  };
-
-  const editBook = async (id, bookObject) => {
-    await axios.patch(`http://localhost:8000/api/books/${id}`, {
-      headers,
-      bookObject,
-    });
-    const response = await axios.get(`http://localhost:8000/api/books/${id}`, {
-      headers,
-    });
-    setBook(response.data.book);
-  };
-
-  const handleEditClick = () => {
-    if (showEdit) {
-      setShowEdit(false);
-      return;
-    }
-    setShowEdit(true);
-  };
-
-  const handleDeleteButtonClick = () => {
-    setShowDeleteModal(true);
-  };
-
-  const handleDeleteModalClose = () => {
-    setShowDeleteModal(false);
-  };
-
-  const handleAuthModalClose = () => {
-    setShowAuthModal(false);
-    window.location = "http://localhost:3000";
-    localStorage.removeItem("token", "id", "admin");
-  };
-
-  let content = (
-    <div className="inline-block w-2/3 h-2/3 text-center">
-      <p className="text-6xl m-2">{book.name}</p>
-      <p className="text-4xl m-2 my-12">Language : {book.language}</p>
-      <p className="text-4xl m-2 my-12">Genre : {book.genre}</p>
-      <p className="text-4xl m-2 my-12">
-        Number of Pages : {book.numberOfPages}
-      </p>
-    </div>
-  );
-
-  if (showEdit) {
-    content = (
-      <div className="inline-block w-2/3 h-2/3 text-center">
-        <BookEdit book={book} onEdit={editBook} onEditSave={handleEditClick} />
-      </div>
-    );
-  }
-
-  const deleteActionBar = (
-    <div>
-      <button
-        className="w-32 float-right bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full"
-        onClick={deleteBook}
-      >
-        Delete Book
-      </button>
-      <button
-        className="mx-2 w-32 float-right bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full"
-        onClick={handleDeleteModalClose}
-      >
-        Back
-      </button>
-    </div>
-  );
-
-  const deleteModal = (
-    <Modal onClose={handleDeleteModalClose} actionBar={deleteActionBar}>
-      <p className="text-3xl">Are you sure you want to delete this book?</p>
-      <p className="text-3xl">Book ID : {id} </p>
-      <p className="text-2xl">Book Name : {book.name} </p>
-      <p className="text-xl">Book Language : {book.language} </p>
-      <p className="text-xl">Genre : {book.genre} </p>
-      <p className="text-xl">Number of Pages : {book.numberOfPages} </p>
-    </Modal>
-  );
-
-  const authActionBar = (
-    <div>
-      <button
-        className="mx-2 w-32 float-right bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full"
-        onClick={handleAuthModalClose}
-      >
-        Back
-      </button>
-    </div>
-  );
-
-  const authModal = (
-    <Modal onClose={handleAuthModalClose} actionBar={authActionBar}>
-      <p className={"text-3xl"}>{showAuthModal.message}</p>
-    </Modal>
-  );
+  const mappedTags = tags.map((tag) => (
+    <Link key={tag.id} className="mr-2" to={`/tag/${tag.id}`}>
+      {tag.name}
+    </Link>
+  ));
 
   return (
-    <div>
-      {renderPage ? (
-        <div className=" h-screen border-4 bg-gray-900 text-white whitespace-nowrap">
-          {content}
-          <div className="inline-block  float-right w-1/3 h-2/3 text-center">
-            <p className="text-6xl m-2">Tags</p>
-            {mappedTags}
+    <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
+      {renderPage && (
+        <div className="max-w-4xl p-8 border-4">
+          <p className="text-4xl mb-4">{book.name}</p>
+          <p className="text-2xl my-4">Language: {book.language}</p>
+          <p className="text-2xl my-4">Number of Pages: {book.numberOfPages}</p>
+          <p className="text-2xl my-4">
+            Author:{" "}
+            <span
+              className="hover:cursor-pointer"
+              onClick={(e) => {
+                window.location = `http://localhost:3000/author/${book.authorID}`;
+              }}
+            >
+              {book.authorName}
+            </span>
+          </p>
+
+          <div className="my-4">
+            <Typography component="legend">Book Rating</Typography>
+            <Rating
+              name="simple-controlled"
+              value={value}
+              precision={0.5}
+              readOnly
+            />
           </div>
-          <div className=" w-full h-1/3">
-            <button
-              className="float-left bg-gray-700 hover:bg-gray-600 text-3xl py-2 px-6 my-24 ml-96 rounded-full"
-              onClick={handleEditClick}
-            >
-              Edit Book
-            </button>
-            <button
-              className="float-right bg-gray-700 hover:bg-gray-600 text-3xl p-2 my-24 mr-96 rounded-full"
-              onClick={handleDeleteButtonClick}
-            >
-              Delete Book
-            </button>
+
+          <p className="text-2xl my-4">
+            Number of Ratings: {book.numberOfRatings}
+          </p>
+
+          <div className="my-4">
+            <Typography component="legend">
+              {rated ? "Book Rated" : "Rate This Book"}
+            </Typography>
+            <Rating
+              name="simple-controlled"
+              value={rating}
+              precision={1}
+              onChange={async (event, newValue) => {
+                setRated(true);
+                const response = await axios.post(
+                  "http://localhost:8000/api/ratebook",
+                  {
+                    rate: newValue,
+                    userID: headers.id,
+                    bookID: id,
+                  }
+                );
+
+                setValue(response.data.newRating);
+
+                if (!rated) {
+                  setBook({
+                    ...book,
+                    numberOfRatings: +book.numberOfRatings + 1,
+                  });
+                }
+
+                if (newValue !== 0) {
+                  setRating(newValue);
+                }
+              }}
+            />
+          </div>
+
+          <div className="flex flex-col items-start">
+            <p className="text-3xl mt-8">Tags:</p>
+            <div className="flex">{mappedTags}</div>
           </div>
         </div>
-      ) : null}
-
-      {showDeleteModal && deleteModal}
-      {showAuthModal.show && authModal}
-      <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      )}
     </div>
   );
 }
-export default BookPage;

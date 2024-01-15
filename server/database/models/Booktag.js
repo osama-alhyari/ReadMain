@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import { db } from "../database.js";
 
-const Booktag = db.sequelize.define("booktag", {
+const BookTag = db.sequelize.define("booktag", {
   tagID: {
     type: DataTypes.INTEGER,
     field: "tagID",
@@ -11,4 +11,4 @@ const Booktag = db.sequelize.define("booktag", {
     field: "bookID",
   },
 });
-export default Booktag;
+export default BookTag;

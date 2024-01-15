@@ -1,24 +1,26 @@
 import axios from "axios";
-import BookList from "../components/BookList";
 import { useEffect, useState } from "react";
-import "react-toastify/dist/ReactToastify.css";
+import AuthorList from "../components/AuthorList.js";
 
 const headers = {
   token: localStorage.getItem("token"),
   id: localStorage.getItem("id"),
 };
 
-export default function ViewBooksPage() {
-  const [books, setBooks] = useState([]);
+export default function ViewAuthorsPage() {
+  const [authors, setAuthors] = useState([]);
   const [renderPage, setRenderPage] = useState(false); // to prevent showing page when token is invalid
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      const response = await axios.get(`${process.env.REACT_APP_API}/books`, {
-        headers,
-      });
-      if (response.data.books) {
-        setBooks(response.data.books);
+    const fetchAuthors = async () => {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API}/author/getauthors`,
+        {
+          headers,
+        }
+      );
+      if (response.data.authors) {
+        setAuthors(response.data.authors);
         setRenderPage(true);
       }
       if (response.data.invalidToken) {
@@ -26,12 +28,12 @@ export default function ViewBooksPage() {
         /////////// here show dialog of timeout
       }
     };
-    fetchBooks();
+    fetchAuthors();
   }, []);
 
   return (
     <div className="bg-gray-900">
-      {renderPage ? <BookList books={books} /> : null}
+      {renderPage ? <AuthorList authors={authors} /> : null}
     </div>
   );
 }

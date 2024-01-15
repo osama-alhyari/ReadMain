@@ -7,39 +7,32 @@ function BookCreate() {
   const [bookState, setBookState] = useState({
     name: "",
     language: "",
-    genre: "",
     numberOfPages: "",
-    tagsString: "",
+    authorName: "",
   });
 
   const [errors, setErrors] = useState({});
 
-  const createBook = async (
-    name,
-    language,
-    genre,
-    numberOfPages,
-    tagsString
-  ) => {
+  const createBook = async (name, language, numberOfPages, authorName) => {
+    const response = await axios.post(`${process.env.REACT_APP_API}/author`, {
+      name: authorName,
+    });
     await axios.post("http://localhost:8000/api/books", {
       headers: {
         token: localStorage.getItem("token"),
         id: localStorage.getItem("id"),
-        admin: localStorage.getItem("id"),
       },
 
       name,
       language,
-      genre,
       numberOfPages,
-      tagsString,
+      authorID: response.data.author.id,
     });
     setBookState({
       name: "",
       language: "",
-      genre: "",
       numberOfPages: "",
-      tagsString: "",
+      authorName: "",
     });
     setErrors({});
     toast.success(`The book ${name} has been added successfully`, {
@@ -61,7 +54,6 @@ function BookCreate() {
       validationErrors.bookName = "Book name should be atleast 3 letters long";
     if (!bookState.language)
       validationErrors.language = "Please select a language";
-    if (!bookState.genre) validationErrors.genre = "Please type in a genre";
     if (+bookState.numberOfPages < 49 || +bookState.numberOfPages > 1000)
       validationErrors.numberOfPages =
         "number of pages should be between 50 and 1000";
@@ -72,9 +64,8 @@ function BookCreate() {
       createBook(
         bookState.name,
         bookState.language,
-        bookState.genre,
         bookState.numberOfPages,
-        bookState.tagsString
+        bookState.authorName
       );
     }
   };
@@ -141,20 +132,6 @@ function BookCreate() {
           <br></br>
           {errors.language && <span>{errors.language}</span>}
           <br></br>
-          <label className="mx-2 my-4 font-bold" for="genre">
-            Genre:
-          </label>
-          <input
-            id="genre"
-            className="border-2 my-4 text-black"
-            value={bookState.genre}
-            onChange={(e) => {
-              setBookState({ ...bookState, genre: e.target.value });
-            }}
-          />
-          <br></br>
-          {errors.genre && <span>{errors.genre}</span>}
-          <br></br>
           <label className="mx-2 my-4 font-bold" for="numberOfPages">
             Number Of Pages:
           </label>
@@ -172,18 +149,15 @@ function BookCreate() {
           <br></br>
           {errors.numberOfPages && <span>{errors.numberOfPages}</span>}
           <br></br>
-          <label for="tags" className="mx-2 my-4 font-bold">
-            Tags : (Seperate different tags with a comma ",")
+          <label for="name" className="mx-2 my-4 font-bold">
+            Author Name:
           </label>
-          <br></br>
-          <textarea
-            id="tags"
-            className="border-2 mx-2 text-black"
-            cols={50}
-            rows={4}
-            value={bookState.tagsString}
+          <input
+            id="authorName"
+            className="border-2 my-4 text-black"
+            value={bookState.authorName}
             onChange={(e) => {
-              setBookState({ ...bookState, tagsString: e.target.value });
+              setBookState({ ...bookState, authorName: e.target.value });
             }}
           />
           <br></br>

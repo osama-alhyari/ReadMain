@@ -12,17 +12,30 @@ const Book = db.sequelize.define("book", {
     type: DataTypes.STRING(255),
   },
   language: {
-    type: DataTypes.STRING(255),
-  },
-  genre: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(45),
   },
   isAvailable: {
     type: DataTypes.BOOLEAN,
-    defaultValue: "1",
+    defaultValue: "0",
   },
   numberOfPages: {
     type: DataTypes.INTEGER,
+  },
+  description: {
+    type: DataTypes.TEXT("long"),
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+  },
+  numberOfRatings: {
+    type: DataTypes.INTEGER,
+  },
+  authorID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  authorName: {
+    type: DataTypes.STRING(45),
   },
 });
 

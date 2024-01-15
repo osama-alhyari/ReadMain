@@ -3,73 +3,80 @@ import UserAuth from "../pages/UserAuth";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import HomeSignedIn from "./HomeSignedIn";
+import Search from "../pages/Search";
 
 const headers = {
   token: localStorage.getItem("token"),
   id: localStorage.getItem("id"),
-  admin: localStorage.getItem("admin"),
 };
 
 function NavBar() {
   const [tokenValidity, setTokenValidity] = useState(false);
-  const [showHomeContent, setShowHomeContent] = useState(false); // this state is set to true after useEffect concludes. to show correct component only. without it the conditional rendering would show the invalid token component until the token is validated from the API
+  const [showHomeContent, setShowHomeContent] = useState(false);
+  const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
     const validateToken = async () => {
-      if (headers.token && headers.id && headers.admin) {
-        const response = await axios.get("http://localhost:8000/api/token", {
+      // Assuming headers are defined somewhere in your code
+      if (headers.token && headers.id) {
+        const response = await axios.get(`${process.env.REACT_APP_API}/token`, {
           headers,
         });
         if (response.data.validToken) {
           setTokenValidity(true);
+          if (response.data.isAdmin) {
+            setAdmin(true);
+          }
         } else {
           setTokenValidity(false);
         }
       }
       setShowHomeContent(true);
     };
+
     validateToken();
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("id");
-    localStorage.removeItem("admin");
     window.location = "http://localhost:3000";
   };
 
   return (
     <div className="h-screen bg-gray-800">
       <nav className="justify-between flex items-stretch gap-8 bg-gray-900 text-white py-2 px-4">
-        <Link reloadDocument to="/" className="text-4xl">
+        <Link reloadDocument to="/" className="text-4xl flex items-center">
           ReadMain
         </Link>
 
         {tokenValidity ? (
-          <ul className="flex list-none m-0 p-0 gap-12 ">
+          <div className="min-w-[650px]">
+            {" "}
+            {/* Use flex-grow to make the Search component take available space */}
+            <Search /> {/* Include the Search component */}
+          </div>
+        ) : null}
+
+        <ul className="flex list-none m-0 p-0 gap-12">
+          {admin ? (
             <Link
               reloadDocument
               className="text-4xl flex items-center h-full hover:bg-gray-600 active:bg-gray-700"
               to="addbooks"
             >
-              Add a Book
+              Admin
             </Link>
-            <Link
-              reloadDocument
-              className="text-4xl flex items-center h-full hover:bg-gray-600 active:bg-gray-700"
-              to="viewbooks"
-            >
-              View Books
-            </Link>
-
+          ) : null}
+          {tokenValidity ? (
             <button
               onClick={handleLogout}
               className="text-4xl flex items-center h-full hover:bg-gray-600 active:bg-gray-700"
             >
               Log out
             </button>
-          </ul>
-        ) : null}
+          ) : null}
+        </ul>
       </nav>
       <div id="detail">
         <Outlet />

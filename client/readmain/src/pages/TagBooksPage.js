@@ -7,12 +7,10 @@ const headers = {
   id: localStorage.getItem("id"),
 };
 
-function TagPage() {
+export default function TagBooksPage() {
   const [renderPage, setRenderPage] = useState(false); // to prevent showing page when token is invalid
   const [books, setBooks] = useState([]);
-
-  const path = window.location.pathname.split("/");
-  const id = +path[2];
+  const id = +window.location.pathname.split("/")[2];
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -20,7 +18,6 @@ function TagPage() {
         `${process.env.REACT_APP_API}/booktags/books/${id}`,
         { headers }
       );
-      console.log(response);
       if (response.data.bookList) {
         setBooks(response.data.bookList);
         setRenderPage(true);
@@ -43,5 +40,3 @@ function TagPage() {
     </div>
   );
 }
-
-export default TagPage;

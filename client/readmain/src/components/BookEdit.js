@@ -4,7 +4,6 @@ function BookEdit({ book, onEditSave, onEditButtonClick }) {
   const [bookState, setBookState] = useState({
     name: book.name,
     language: book.language,
-    genre: book.genre,
     numberOfPages: book.numberOfPages,
   });
 
@@ -17,7 +16,6 @@ function BookEdit({ book, onEditSave, onEditButtonClick }) {
       validationErrors.bookName = "Book name should be atleast 3 letters long";
     if (!bookState.language)
       validationErrors.language = "Please select a language";
-    if (!bookState.genre) validationErrors.genre = "Please type in a genre";
     if (+bookState.numberOfPages < 49 || +bookState.numberOfPages > 1000)
       validationErrors.numberOfPages =
         "number of pages should be between 50 and 1000";
@@ -86,18 +84,6 @@ function BookEdit({ book, onEditSave, onEditButtonClick }) {
       <br></br>
       {(errors.language && (
         <span className="text-white font-bold">{errors.language}</span>
-      )) || <br></br>}
-      <br></br>
-
-      <label className="text-white font-bold">Genre :</label>
-      <input
-        className=""
-        value={bookState.genre}
-        onChange={(e) => setBookState({ ...bookState, genre: e.target.value })}
-      />
-      <br></br>
-      {(errors.genre && (
-        <span className="text-white font-bold">{errors.genre}</span>
       )) || <br></br>}
       <br></br>
 

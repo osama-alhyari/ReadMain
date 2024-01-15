@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import BookList from "../components/BookList";
 
 const headers = {
@@ -7,27 +7,26 @@ const headers = {
   id: localStorage.getItem("id"),
 };
 
-function TagPage() {
+export default function AuthorBooksPage() {
+  const [books, setBooks] = useState({});
   const [renderPage, setRenderPage] = useState(false); // to prevent showing page when token is invalid
-  const [books, setBooks] = useState([]);
-
-  const path = window.location.pathname.split("/");
-  const id = +path[2];
+  const id = +window.location.pathname.split("/")[2];
 
   useEffect(() => {
     const fetchBooks = async () => {
       const response = await axios.get(
-        `${process.env.REACT_APP_API}/booktags/books/${id}`,
-        { headers }
+        `${process.env.REACT_APP_API}/books/getauthorbooks`,
+        {
+          headers: { ...headers, authorid: id },
+        }
       );
-      console.log(response);
-      if (response.data.bookList) {
-        setBooks(response.data.bookList);
+      if (response.data.books) {
+        setBooks(response.data.books);
         setRenderPage(true);
       }
       if (response.data.invalidToken) {
-/////timeout 
         setRenderPage(false);
+        /////////// here show dialog of timeout
       }
     };
     fetchBooks();
@@ -35,13 +34,7 @@ function TagPage() {
 
   return (
     <div className="bg-gray-900">
-      {renderPage ? (
-        <BookList
-          books={books}
-        />
-      ) : null}
+      {renderPage ? <BookList books={books} /> : null}
     </div>
   );
 }
-
-export default TagPage;

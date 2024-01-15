@@ -9,7 +9,12 @@ export const addTag = catchAsync(async (req, res, next) => {
       name,
       description,
     });
-    res.status(201).json({ message: "new tag added", id : newTag.id });
+    res.status(201).json({ message: "new tag added", id: newTag.id });
   }
   res.status(201).json({ message: "tag already added", id: tag.id });
+});
+
+export const getTags = catchAsync(async (req, res, next) => {
+  const tags = await Tag.findAll();
+  res.status(200).json({ tags });
 });

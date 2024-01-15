@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
-function UserAuth() {
+export default function UserAuth() {
   const [loginOrSignup, setLoginOrSignup] = useState("container top-24");
 
   const [loginState, setLoginState] = useState({
@@ -20,7 +20,7 @@ function UserAuth() {
   const [signupErrors, setSignupErrors] = useState({});
 
   const signupUser = async (name, email, password) => {
-    const response = await axios.post("http://localhost:8000/api/users", {
+    const response = await axios.post(`${process.env.REACT_APP_API}/users`, {
       name,
       email,
       password,
@@ -29,7 +29,6 @@ function UserAuth() {
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("id", response.data.id);
-      localStorage.setItem("admin", response.data.isAdmin);
       window.location = "http://localhost:3000/viewbooks";
       // redirect("http://localhost:3000/viewbooks");
     }
@@ -48,16 +47,18 @@ function UserAuth() {
   };
 
   const loginUser = async (credentials) => {
-    console.log(credentials);
-    const response = await axios.post("http://localhost:8000/api/users/login", {
+    const response = await axios.post(`${process.env.REACT_APP_API}/users/login`, {
       email: credentials.email,
       password: credentials.password,
     });
     if (response.data.token) {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("id", response.data.id);
-      localStorage.setItem("admin", response.data.isAdmin);
-      window.location = "http://localhost:3000/viewbooks";
+      if (response.data.isAdmin) {
+        window.location = "http://localhost:3000/addbooks"; /// change path to user home
+      } else {
+        window.location = "http://localhost:3000/viewbooks"; /// change path to admin home
+      }
     }
     if (response.data.message) {
       toast.error(`No account with the email :${signupState.email} `, {
@@ -96,7 +97,6 @@ function UserAuth() {
       signupValidationErrors.password = "Please provide a password";
     } else if (!(signupState.password === signupState.confirmPassword))
       signupValidationErrors.confirmPassword = "Passwords do not match";
-    console.log(signupState.email);
     // const emailCheck = await axios.get(
     //   `http://localhost:8000/api/users/${signupState.email}`
     // );
@@ -104,7 +104,6 @@ function UserAuth() {
     //   signupValidationErrors.email = "Email already in use";
 
     setSignupErrors(signupValidationErrors);
-    console.log(signupValidationErrors);
     if (Object.keys(signupValidationErrors).length === 0) {
       signupUser(signupState.name, signupState.email, signupState.password);
     }
@@ -264,5 +263,3 @@ function UserAuth() {
     </div>
   );
 }
-
-export default UserAuth;

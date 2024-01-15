@@ -1,11 +1,11 @@
-import { DATABASE, USER, PASSWORD, HOST, DIALECT } from "./config/config.js";
 import Sequelize from "sequelize";
+import 'dotenv/config'
 
 const db = {};
 
-const sequelize = new Sequelize(DATABASE, USER, PASSWORD, {
-  host: HOST,
-  dialect: DIALECT,
+const sequelize = new Sequelize(process.env.DATABASE, process.env.USER, process.env.PASSWORD, {
+  host: process.env.HOST,
+  dialect: process.env.DIALECT,
   define: {
     timestamps: false,
     freezeTableName: true,
